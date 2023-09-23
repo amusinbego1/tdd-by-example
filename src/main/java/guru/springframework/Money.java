@@ -9,14 +9,14 @@ import java.util.function.DoubleUnaryOperator;
 
 public final class Money{
     private final double amount;
-    private double oneUnitInBam;
-    private Locale locale;
+    private final double oneUnitInBam;
+    private final  Locale locale;
     public enum Currency{
         BAM(1, new Locale("bs", "BA")),
         DOLLAR(1.83, new Locale("en", "US")),
         EURO(1.96, new Locale("de", "DE"));
-        private double oneUnitInBam;
-        private Locale locale;
+        private final double oneUnitInBam;
+        private final Locale locale;
         Currency(double oneUnitInBam, Locale locale){
             this.oneUnitInBam = oneUnitInBam;
             this.locale = locale;
