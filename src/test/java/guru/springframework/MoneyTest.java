@@ -1,56 +1,62 @@
 package guru.springframework;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MoneyTest {
-    @Test
-    void testToStringDollar() {
-        Money fiveDollars = new Money(5, Money.Currency.DOLLAR);
-        assertEquals("$5.00", fiveDollars.toString());
+
+    @DisplayName("toString test")
+    @ParameterizedTest(name = "Arguments [{arguments}]")
+    @CsvFileSource(resources = "/MoneyToStringTest.csv", delimiter = '|')
+    void toStringTest(String amount, String currency, String expected) {
+        Money money = new Money(Double.parseDouble(amount), Money.Currency.valueOf(currency));
+        assertEquals(expected.replace("{amount}", amount), money.toString());
     }
 
-    @Test
-    void testToStringBam() {
-        Money fiveDollars = new Money(5, Money.Currency.BAM);
-        assertEquals("5,00 KM", fiveDollars.toString());
+    @ParameterizedTest
+    @MethodSource("additionTestSource")
+    void additionTest(Money m1, Money m2){
+        assertEquals(Money.resultOf(Double::sum, m1, m2), Money.add(m1, m2));
     }
 
-    @Test
-    void testAdditionWithSameCurrency(){
-        Money oneBam = new Money(1);
-        Money twoBam = new Money(2);
-        assertEquals(Money.resultOf(Double::sum, oneBam, twoBam), Money.add(oneBam, twoBam));
+    public static Stream<Arguments> additionTestSource(){
+        return Stream.of(
+                    Arguments.of(new Money(1), new Money(2)),
+                    Arguments.of(new Money(1), new Money(2, Money.Currency.DOLLAR)),
+                    Arguments.of(new Money(1, Money.Currency.EURO), new Money(2, Money.Currency.DOLLAR))
+                );
     }
 
-    @Test
-    void testAdditionWithOneBaseAndOneNonBaseCurrency(){
-        Money oneBam = new Money(1);
-        Money twoDollar = new Money(2, Money.Currency.DOLLAR);
-        assertEquals(Money.resultOf(Double::sum, oneBam, twoDollar), Money.add(oneBam, twoDollar));
+    @ParameterizedTest
+    @MethodSource("subtractionTestSource")
+    void subtractionTest(Money m1, Money m2){
+        assertEquals(Money.resultOf((a,b) -> a-b, m1, m2), Money.minus(m1, m2));
     }
 
-    @Test
-    void testAdditionWithBothNonBaseCurrencies(){
-        Money oneEuro = new Money(1, Money.Currency.EURO);
-        Money twoDollar = new Money(2, Money.Currency.DOLLAR);
-        assertEquals(Money.resultOf(Double::sum, oneEuro, twoDollar), Money.add(oneEuro, twoDollar));
+    public static Stream<Arguments> subtractionTestSource(){
+        return Stream.of(
+                Arguments.of(new Money(1), new Money(2)),
+                Arguments.of(new Money(1), new Money(2, Money.Currency.DOLLAR)),
+                Arguments.of(new Money(1, Money.Currency.EURO), new Money(2, Money.Currency.DOLLAR))
+        );
     }
 
-    @Test
-    void testMinusWithBothNonBaseCurrencies(){
-        Money oneEuro = new Money(1, Money.Currency.EURO);
-        Money twoDollar = new Money(2, Money.Currency.DOLLAR);
-        assertEquals(Money.resultOf((a, b) -> a-b, oneEuro, twoDollar), Money.minus(oneEuro, twoDollar));
-    }
-
-    @Test
-    void testToStringWithNullLocale(){
-        Money undefinedCurrency = new Money(1.3, 1.32, null);
-        Money undefinedCurrency2 = new Money(1223121.3, 1.32, null);
-        assertEquals("1,30", undefinedCurrency.toString());
-        assertEquals("1.223.121,30", undefinedCurrency2.toString());
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "1.3|1.32|1,30",
+            "1223121.3|1.32|1.223.121,30"
+    })
+    void testToStringWithNullLocale(Double amount, Double oneUnitInBam, String expected){
+        assertEquals(expected, new Money(amount, oneUnitInBam, null).toString());
     }
 
     @Test

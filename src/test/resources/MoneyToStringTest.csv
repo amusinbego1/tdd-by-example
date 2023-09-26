@@ -1,0 +1,4 @@
+# amount| currency| expected
+5| DOLLAR| ${amount}.00|
+5| BAM| {amount},00 KM|
+5| EURO| {amount},00 €|
