@@ -46,7 +46,7 @@ public final class Money{
 
     @Override
     public String toString() {
-        return locale != null ? NumberFormat.getCurrencyInstance(locale).format(amount) : new DecimalFormat("###,###.00").format(amount);
+        return locale != null ? NumberFormat.getCurrencyInstance(locale).format(amount) : new DecimalFormat("###,##0.00").format(amount);
     }
 
     @Override

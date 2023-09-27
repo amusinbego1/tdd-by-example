@@ -53,7 +53,8 @@ public class MoneyTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', value = {
             "1.3|1.32|1,30",
-            "1223121.3|1.32|1.223.121,30"
+            "1223121.3|1.32|1.223.121,30",
+            "0.0|2.13|0,00"
     })
     void testToStringWithNullLocale(Double amount, Double oneUnitInBam, String expected){
         assertEquals(expected, new Money(amount, oneUnitInBam, null).toString());
